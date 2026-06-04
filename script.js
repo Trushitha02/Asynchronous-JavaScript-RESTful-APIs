@@ -1,34 +1,22 @@
-const weatherForm = document.getElementById("weatherForm");
-const cityInput = document.getElementById("cityInput");
-const weatherResult = document.getElementById("weatherResult");
+const apiKey = "YOUR_API_KEY";
 
-const API_KEY = "YOUR_API_KEY";
+document.getElementById("searchBtn").addEventListener("click", getWeather);
 
-weatherForm.addEventListener("submit", function(e){
+async function getWeather() {
 
-    e.preventDefault();
-
-    const city = cityInput.value.trim();
+    const city = document.getElementById("cityInput").value.trim();
 
     if(city === ""){
         alert("Please enter a city name");
         return;
     }
 
-    fetchWeather(city);
-
-});
-
-async function fetchWeather(city){
-
-    weatherResult.innerHTML =
-    "<p>Loading weather...</p>";
+    const url =
+    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
 
     try{
 
-        const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
-        );
+        const response = await fetch(url);
 
         if(!response.ok){
             throw new Error("City not found");
@@ -36,44 +24,19 @@ async function fetchWeather(city){
 
         const data = await response.json();
 
-        weatherResult.innerHTML = `
-        <div class="weather-card">
-
-            <h2>
-            ${data.name},
-            ${data.sys.country}
-            </h2>
-
-            <p>
-            🌡 Temperature:
-            ${data.main.temp} °C
-            </p>
-
-            <p>
-            💧 Humidity:
-            ${data.main.humidity} %
-            </p>
-
-            <p>
-            🌬 Wind Speed:
-            ${data.wind.speed} m/s
-            </p>
-
-            <p>
-            ☁ Condition:
-            ${data.weather[0].description}
-            </p>
-
-        </div>
+        document.getElementById("weatherResult").innerHTML = `
+            <h2>${data.name}</h2>
+            <p><strong>Temperature:</strong> ${data.main.temp} °C</p>
+            <p><strong>Humidity:</strong> ${data.main.humidity}%</p>
+            <p><strong>Wind Speed:</strong> ${data.wind.speed} m/s</p>
+            <p><strong>Weather:</strong> ${data.weather[0].description}</p>
         `;
 
     }
     catch(error){
 
-        weatherResult.innerHTML = `
-        <p class="error">
-        ❌ ${error.message}
-        </p>
-        `;
+        document.getElementById("weatherResult").innerHTML =
+        `<p style="color:red;">${error.message}</p>`;
+
     }
 }
