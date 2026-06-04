@@ -1,42 +1,105 @@
 const apiKey = "YOUR_API_KEY";
 
-document.getElementById("searchBtn").addEventListener("click", getWeather);
+const searchBtn =
+document.getElementById("searchBtn");
 
-async function getWeather() {
+const cityInput =
+document.getElementById("cityInput");
 
-    const city = document.getElementById("cityInput").value.trim();
+const weatherResult =
+document.getElementById("weatherResult");
 
-    if(city === ""){
-        alert("Please enter a city name");
-        return;
-    }
+searchBtn.addEventListener(
+"click",
+getWeather
+);
 
-    const url =
-    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+async function getWeather(){
 
-    try{
+const city =
+cityInput.value.trim();
 
-        const response = await fetch(url);
+if(city === ""){
 
-        if(!response.ok){
-            throw new Error("City not found");
-        }
+weatherResult.innerHTML = `
+<p class="error">
+Please enter a city name
+</p>
+`;
 
-        const data = await response.json();
+return;
+}
 
-        document.getElementById("weatherResult").innerHTML = `
-            <h2>${data.name}</h2>
-            <p><strong>Temperature:</strong> ${data.main.temp} °C</p>
-            <p><strong>Humidity:</strong> ${data.main.humidity}%</p>
-            <p><strong>Wind Speed:</strong> ${data.wind.speed} m/s</p>
-            <p><strong>Weather:</strong> ${data.weather[0].description}</p>
-        `;
+const url =
+`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
 
-    }
-    catch(error){
+try{
 
-        document.getElementById("weatherResult").innerHTML =
-        `<p style="color:red;">${error.message}</p>`;
+weatherResult.innerHTML =
+"<p>Loading Weather...</p>";
 
-    }
+const response =
+await fetch(url);
+
+if(!response.ok){
+
+throw new Error(
+"City not found"
+);
+
+}
+
+const data =
+await response.json();
+
+weatherResult.innerHTML = `
+
+<div class="weather-card">
+
+<h2>
+📍 ${data.name},
+${data.sys.country}
+</h2>
+
+<p>
+🌡 Temperature:
+${data.main.temp} °C
+</p>
+
+<p>
+💧 Humidity:
+${data.main.humidity} %
+</p>
+
+<p>
+🌬 Wind Speed:
+${data.wind.speed} m/s
+</p>
+
+<p>
+☁ Weather:
+${data.weather[0].description}
+</p>
+
+<p>
+📊 Pressure:
+${data.main.pressure} hPa
+</p>
+
+</div>
+
+`;
+
+}
+
+catch(error){
+
+weatherResult.innerHTML = `
+<p class="error">
+❌ ${error.message}
+</p>
+`;
+
+}
+
 }
